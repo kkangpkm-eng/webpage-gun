@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>총포 소지 허가 신청서</title>
+<style>
+  :root {
+    --line: #000;
+    --inner: #777;
+    --office: #ececec;
+    --field: #eaf3ff;
+    --field-focus: #d6e8ff;
+    --miss: #e5484d;
+    --ui-bg: #f3f4f6;
+    --ui-fg: #1f2937;
+    --fit: 1;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--ui-bg);
+    color: #000;
+    font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ---------- 화면 상단 도구 막대 ---------- */
+  .toolbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 10px 16px;
+    background: #fff; color: var(--ui-fg);
+    border-bottom: 1px solid #d1d5db;
+    font-size: 14px;
+  }
+  .toolbar h1 { margin: 0; font-size: 16px; font-weight: 700; margin-right: auto; }
+  .toolbar .status { font-size: 12px; color: #6b7280; }
+  .btn {
+    font: inherit; font-size: 14px; cursor: pointer;
+    padding: 8px 14px; border-radius: 6px;
+    border: 1px solid #d1d5db; background: #fff; color: var(--ui-fg);
+  }
+  .btn.primary { background: #1d4ed8; border-color: #1d4ed8; color: #fff; font-weight: 600; }
+  .btn:hover { filter: brightness(0.96); }
+  .guide {
+    max-width: 210mm; margin: 12px auto 0; padding: 0 16px;
+    font-size: 13px; color: #4b5563; line-height: 1.6;
+  }
+  .guide b { color: var(--ui-fg); }
+
+  /* ---------- A4 용지 ---------- */
+  .sheet { padding: 16px 8px 40px; }
+  .page {
+    zoom: var(--fit);
+    width: 210mm; min-height: 297mm;
+    margin: 0 auto 16px;
+    padding: 10mm 20.5mm 7mm;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.18);
+    font-size: 9pt; line-height: 1.3;
+  }
+
+  .law { font-size: 8pt; margin-bottom: 1mm; }
+  .title {
+    border-top: 0.6mm solid var(--line);
+    text-align: center; font-size: 16pt; font-weight: 700;
+    letter-spacing: 0.15em; padding: 2mm 0;
+  }
+  .notice { display: flex; justify-content: space-between; font-size: 8pt; padding: 0.8mm 0 1mm; }
+
+  table.f {
+    width: 100%; border-collapse: collapse; table-layout: fixed;
+    border-top: 0.5mm solid var(--line); border-bottom: 0.5mm solid var(--line);
+    border-left: hidden; border-right: hidden;
+  }
+  table.f + table.f, .gap { margin-top: 1.2mm; }
+  table.f td { border: 0.15mm solid var(--inner); padding: 0.6mm 1.4mm; vertical-align: middle; }
+  td.c { text-align: center; }
+  td.lab { text-align: center; word-break: keep-all; }
+  td.off { background: var(--office); }
+  .small { font-size: 8pt; }
+
+  /* 입력칸 */
+  .fl { display: flex; align-items: center; gap: 1.5mm; width: 100%; white-space: nowrap; }
+  .lb { flex: none; }
+  .u { flex: none; }
+  input[type=text] {
+    flex: 1 1 auto; min-width: 0; width: 100%;
+    font: inherit; font-size: 9.5pt; color: #000;
+    border: 0; border-radius: 2px; padding: 0.6mm 1mm; margin: 0;
+    background: var(--field); outline: none;
+  }
+  input[type=text]:focus { background: var(--field-focus); box-shadow: inset 0 -1.5px 0 #1d4ed8; }
+  input.r { text-align: right; }
+  input.miss, .ckgroup.miss { box-shadow: 0 0 0 1.5px var(--miss); }
+  .ymd { display: inline-flex; align-items: center; gap: 0.6mm; }
+  .ymd input { flex: none; text-align: center; }
+  .ymd input.y { width: 11mm; }
+  .ymd input.md { width: 7mm; }
+
+  /* [  ] 체크 */
+  .ckgroup { border-radius: 2px; }
+  .ckrow { display: flex; flex-wrap: wrap; gap: 0.4mm 3.2mm; }
+  .ckgrid { display: grid; grid-template-columns: repeat(6, auto); gap: 0.8mm 2mm; justify-content: space-between; }
+  label.ck { display: inline-flex; align-items: center; cursor: pointer; white-space: nowrap; user-select: none; }
+  label.ck input { position: absolute; opacity: 0; width: 0; height: 0; }
+  label.ck .box { display: inline-block; width: 5.2mm; white-space: pre; font-family: "Malgun Gothic", monospace; }
+  label.ck .box::before { content: "[\00a0\00a0\00a0]"; }
+  label.ck input:checked + .box::before { content: "[\00a0√\00a0]"; font-weight: 700; }
+  label.ck input:focus-visible + .box { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  @media screen { label.ck:hover .box { color: #1d4ed8; } }
+
+  .declare { text-align: center; padding: 2mm 0 1mm; }
+  .signline { display: flex; align-items: center; justify-content: flex-end; gap: 6mm; padding: 1mm 0 2mm; }
+  .signline .who { display: inline-flex; align-items: center; gap: 2mm; }
+  .signline .name { display: inline-block; min-width: 26mm; text-align: center; font-size: 10pt; border-bottom: 0.15mm dotted #999; }
+  .to { font-size: 12pt; font-weight: 700; padding: 0.5mm 0 2mm; border-bottom: 0.5mm solid var(--line); }
+  .paper { text-align: right; font-size: 8pt; padding-top: 1mm; }
+
+  /* 뒤쪽 */
+  .bar { background: var(--office); text-align: center; font-weight: 700; font-size: 10pt; padding: 1.8mm 0;
+         border-top: 0.5mm solid var(--line); border-bottom: 0.15mm solid var(--inner); }
+  .list { margin: 0; padding: 0; list-style: none; }
+  .list li { padding-left: 4mm; text-indent: -4mm; margin: 0.6mm 0; }
+  .list li.sub { padding-left: 8mm; text-indent: -4mm; }
+  .block { padding: 2mm 1.5mm; border-bottom: 0.5mm solid var(--line); line-height: 1.55; }
+  .flow { border-bottom: 0.5mm solid var(--line); }
+  .flow table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .flow th { font-weight: 400; border: 0.15mm solid var(--inner); padding: 1mm; border-top: 0; }
+  .flow th:first-child { border-left: 0; } .flow th:last-child { border-right: 0; }
+  .flow svg { display: block; width: 100%; height: auto; }
+
+  /* 확인 창 */
+  .modal { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center;
+           background: rgba(0,0,0,.4); padding: 16px; }
+  .modal.on { display: flex; }
+  .modal .card { background: #fff; color: var(--ui-fg); border-radius: 10px; padding: 20px; width: min(420px, 100%);
+                 font-size: 14px; line-height: 1.6; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .modal h2 { margin: 0 0 8px; font-size: 16px; }
+  .modal ul { margin: 6px 0 14px; padding-left: 20px; color: #b91c1c; }
+  .modal .acts { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+  /* ---------- 인쇄 ---------- */
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { background: #fff; }
+    .toolbar, .guide, .modal { display: none !important; }
+    .sheet { padding: 0; }
+    .page { zoom: 1; margin: 0; box-shadow: none; height: 297mm; min-height: 0; overflow: hidden;
+            break-after: page; page-break-after: always; }
+    .page:last-child { break-after: auto; page-break-after: auto; }
+    input[type=text] { background: transparent !important; box-shadow: none !important; }
+    input.miss, .ckgroup.miss { box-shadow: none !important; }
+    input::placeholder { color: transparent; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>총포 소지 허가 신청서 · 온라인 작성</h1>
+  <span class="status" id="status"></span>
+  <button class="btn" id="btnReset" type="button">초기화</button>
+  <button class="btn primary" id="btnPrint" type="button">🖨 출력 · PDF 저장</button>
+</div>
+
+<div class="guide">
+  파란 칸을 눌러 입력하고, <b>[&nbsp;&nbsp;&nbsp;]</b>를 누르면 √ 표시됩니다. 회색 칸은 경찰서 기재란이라 비워 둡니다.
+  PDF로 저장하려면 인쇄 창의 대상에서 <b>‘PDF로 저장’</b>을 고르세요(용지 A4, 배율 100%).
+  입력 내용은 이 브라우저에만 임시저장되며 <b>주민등록번호는 저장하지 않습니다.</b> 서명란은 출력 후 직접 서명하세요.
+</div>
+
+<form id="form" autocomplete="off" onsubmit="return false">
+<div class="sheet">
+
+<!-- ======================= 앞 쪽 ======================= -->
+<section class="page" aria-label="앞쪽">
+  <div class="law">■ 총포·도검·화약류 등의 안전관리에 관한 법률 시행규칙 [별지 제9호서식] &lt;개정 2026. 1. 8.&gt;</div>
+  <div class="title">총포 소지 허가 신청서</div>
+  <div class="notice"><span>※ 뒤쪽의 안내사항을 참고하시기 바라며, [&nbsp;&nbsp;]에는 해당되는 곳에 √표를 합니다.</span><span>(앞 쪽)</span></div>
+
+  <!-- 접수 -->
+  <table class="f">
+    <colgroup><col style="width:12.48%"><col style="width:12.48%"><col style="width:10.13%"><col style="width:14.84%"><col style="width:10.77%"><col style="width:13.62%"><col style="width:7.97%"><col style="width:17.71%"></colgroup>
+    <tr style="height:7.7mm">
+      <td class="lab off">접수 번호</td><td class="off"></td>
+      <td class="lab off">접수 일자</td><td class="off"></td>
+      <td class="lab off">처리 일자</td><td class="off"></td>
+      <td class="lab off">처리 기간</td>
+      <td class="off small" style="line-height:1.35">경찰서장 허가 7일<br>시·도경찰청장 허가 10일</td>
+    </tr>
+  </table>
+
+  <!-- 신청인 -->
+  <table class="f">
+    <colgroup><col style="width:12.48%"><col style="width:37.95%"><col style="width:49.57%"></colgroup>
+    <tr style="height:6mm">
+      <td class="lab" rowspan="3">신청인</td>
+      <td><div class="fl"><span class="lb">성명</span><input type="text" name="name" id="name" data-req="신청인 성명"></div></td>
+      <td><div class="fl"><span class="lb">주민등록번호</span><input type="text" name="rrn" data-fmt="rrn" data-nosave data-req="신청인 주민등록번호" inputmode="numeric" placeholder="000000-0000000"></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td><div class="fl"><span class="lb">직업</span><input type="text" name="job"></div></td>
+      <td><div class="fl"><span class="lb">운전면허번호</span><input type="text" name="license"></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td><div class="fl"><span class="lb">주소</span><input type="text" name="addr" data-req="신청인 주소"></div></td>
+      <td><div class="fl"><span class="lb">전화번호</span><input type="text" name="tel" data-fmt="tel" data-req="신청인 전화번호" inputmode="tel"></div></td>
+    </tr>
+  </table>
+
+  <!-- 관리책임자 -->
+  <table class="f">
+    <colgroup><col style="width:18.38%"><col style="width:10.42%"><col style="width:14.8%"><col style="width:15.59%"><col style="width:10.42%"><col style="width:14.8%"><col style="width:15.59%"></colgroup>
+    <tr style="height:5mm">
+      <td class="lab small" rowspan="4" style="line-height:1.35">관리책임자<br>(예술소품용 총포 등<br>소지허가를 신청하는<br>경우에만 해당한다)</td>
+      <td class="c">성명</td><td class="c">주민등록번호</td><td class="c">휴대전화번호</td>
+      <td class="c">성명</td><td class="c">주민등록번호</td><td class="c">휴대전화번호</td>
+    </tr>
+    <tr style="height:5.2mm">
+      <td><input type="text" name="m1_name"></td><td><input type="text" name="m1_rrn" data-fmt="rrn" data-nosave inputmode="numeric"></td><td><input type="text" name="m1_tel" data-fmt="tel" inputmode="tel"></td>
+      <td><input type="text" name="m2_name"></td><td><input type="text" name="m2_rrn" data-fmt="rrn" data-nosave inputmode="numeric"></td><td><input type="text" name="m2_tel" data-fmt="tel" inputmode="tel"></td>
+    </tr>
+    <tr style="height:5.2mm">
+      <td><input type="text" name="m3_name"></td><td><input type="text" name="m3_rrn" data-fmt="rrn" data-nosave inputmode="numeric"></td><td><input type="text" name="m3_tel" data-fmt="tel" inputmode="tel"></td>
+      <td><input type="text" name="m4_name"></td><td><input type="text" name="m4_rrn" data-fmt="rrn" data-nosave inputmode="numeric"></td><td><input type="text" name="m4_tel" data-fmt="tel" inputmode="tel"></td>
+    </tr>
+    <tr style="height:5.2mm">
+      <td><input type="text" name="m5_name"></td><td><input type="text" name="m5_rrn" data-fmt="rrn" data-nosave inputmode="numeric"></td><td><input type="text" name="m5_tel" data-fmt="tel" inputmode="tel"></td>
+      <td><input type="text" name="m6_name"></td><td><input type="text" name="m6_rrn" data-fmt="rrn" data-nosave inputmode="numeric"></td><td><input type="text" name="m6_tel" data-fmt="tel" inputmode="tel"></td>
+    </tr>
+  </table>
+
+  <!-- 총포내용 -->
+  <table class="f">
+    <colgroup><col style="width:12.48%"><col style="width:12.56%"><col style="width:37.44%"><col style="width:12.48%"><col style="width:25.04%"></colgroup>
+    <tr>
+      <td class="lab" rowspan="7">총포내용</td>
+      <td class="lab">총종(銃種)·<br>형식</td>
+      <td colspan="3" style="padding-top:1mm;padding-bottom:1mm">
+        <div class="ckgroup" id="grpType" data-req="총종·형식">
+          <div class="ckrow">
+            <label class="ck"><input type="checkbox" name="type" value="산탄외대"><span class="box"></span>산탄외대</label>
+            <label class="ck"><input type="checkbox" name="type" value="산탄상하쌍대"><span class="box"></span>산탄상하쌍대</label>
+            <label class="ck"><input type="checkbox" name="type" value="산탄수평쌍대"><span class="box"></span>산탄수평쌍대</label>
+            <label class="ck"><input type="checkbox" name="type" value="삼연쌍대"><span class="box"></span>삼연쌍대</label>
+            <label class="ck"><input type="checkbox" name="type" value="라이플"><span class="box"></span>라이플</label>
+          </div>
+          <div class="ckrow">
+            <label class="ck"><input type="checkbox" name="type" value="공기총스프링"><span class="box"></span>공기총스프링</label>
+            <label class="ck"><input type="checkbox" name="type" value="공기총(펌프)"><span class="box"></span>공기총(펌프)</label>
+            <label class="ck"><input type="checkbox" name="type" value="공기총(가스)"><span class="box"></span>공기총(가스)</label>
+            <label class="ck"><input type="checkbox" name="type" value="권총회전"><span class="box"></span>권총회전</label>
+            <label class="ck"><input type="checkbox" name="type" value="권총착탈"><span class="box"></span>권총착탈</label>
+          </div>
+          <div class="ckrow">
+            <label class="ck"><input type="checkbox" name="type" value="공간"><span class="box"></span>공간</label>
+            <label class="ck"><input type="checkbox" name="type" value="원절"><span class="box"></span>원절</label>
+            <label class="ck"><input type="checkbox" name="type" value="중절"><span class="box"></span>중절</label>
+            <label class="ck"><input type="checkbox" name="type" value="레바"><span class="box"></span>레바</label>
+            <label class="ck"><input type="checkbox" name="type" value="수동장전"><span class="box"></span>수동장전</label>
+            <label class="ck"><input type="checkbox" name="type" value="자동장전"><span class="box"></span>자동장전</label>
+            <label class="ck"><input type="checkbox" name="type" value="기타"><span class="box"></span>기타</label>
+          </div>
+        </div>
+      </td>
+    </tr>
+    <tr style="height:6.2mm">
+      <td class="lab">총명</td>
+      <td><div class="fl"><span class="lb">제조국명</span><input type="text" name="g_country"></div></td>
+      <td colspan="2"><div class="fl"><span class="lb">명칭</span><input type="text" name="g_model"></div></td>
+    </tr>
+    <tr style="height:6.4mm">
+      <td class="lab" rowspan="2">구경</td>
+      <td><div class="fl"><span class="lb">공칭</span><input type="text" class="r" name="g_cal_nom"><span class="u">번(구경)</span></div></td>
+      <td colspan="2"><div class="fl"><span class="lb">총신의 길이</span><input type="text" class="r" name="g_barrel" inputmode="decimal"><span class="u">㎝</span></div></td>
+    </tr>
+    <tr style="height:6.4mm">
+      <td><div class="fl"><span class="lb">실측치수</span><input type="text" class="r" name="g_cal_mm" inputmode="decimal"><span class="u">㎜</span></div></td>
+      <td colspan="2"><div class="fl"><span class="lb">총 전체의 길이</span><input type="text" class="r" name="g_total" inputmode="decimal"><span class="u">㎝</span></div></td>
+    </tr>
+    <tr style="height:6.4mm">
+      <td class="lab">대체총신</td>
+      <td><div class="fl"><span class="lb">구경</span><input type="text" class="r" name="s_cal_nom"><span class="u">번(구경)</span><input type="text" class="r" name="s_cal_mm" inputmode="decimal" style="max-width:14mm"><span class="u">㎜</span></div></td>
+      <td colspan="2"><div class="fl"><span class="lb">총신의 길이</span><input type="text" class="r" name="s_barrel" inputmode="decimal"><span class="u">㎝</span></div></td>
+    </tr>
+    <tr style="height:6.2mm">
+      <td class="lab">총번(銃番)</td>
+      <td><div class="fl"><span class="lb">제</span><input type="text" class="r" name="g_serial"><span class="u">호</span></div></td>
+      <td class="lab">총중량</td>
+      <td><div class="fl"><input type="text" class="r" name="g_weight" inputmode="decimal"><span class="u">kg</span></div></td>
+    </tr>
+    <tr style="height:8mm">
+      <td class="lab">적합실탄<br>공포탄명</td>
+      <td><input type="text" name="g_ammo"></td>
+      <td class="lab">탄창장전<br>탄수</td>
+      <td><div class="fl"><input type="text" class="r" name="g_rounds" inputmode="numeric"><span class="u">개</span></div></td>
+    </tr>
+  </table>
+
+  <!-- 용도 -->
+  <table class="f">
+    <colgroup><col style="width:12.56%"><col style="width:87.44%"></colgroup>
+    <tr style="height:10mm">
+      <td class="lab">용도</td>
+      <td>
+        <div class="ckgroup ckgrid" id="grpUse" data-req="용도">
+          <label class="ck"><input type="checkbox" name="use" value="호신"><span class="box"></span>호신</label>
+          <label class="ck"><input type="checkbox" name="use" value="수렵"><span class="box"></span>수렵</label>
+          <label class="ck"><input type="checkbox" name="use" value="유해조수 구제"><span class="box"></span>유해조수 구제</label>
+          <label class="ck"><input type="checkbox" name="use" value="사격경기"><span class="box"></span>사격경기</label>
+          <label class="ck"><input type="checkbox" name="use" value="어획"><span class="box"></span>어획</label>
+          <label class="ck"><input type="checkbox" name="use" value="건축"><span class="box"></span>건축</label>
+          <label class="ck"><input type="checkbox" name="use" value="공업"><span class="box"></span>공업</label>
+          <label class="ck"><input type="checkbox" name="use" value="기타 산업"><span class="box"></span>기타 산업</label>
+          <label class="ck"><input type="checkbox" name="use" value="신호·구명"><span class="box"></span>신호·구명</label>
+          <label class="ck"><input type="checkbox" name="use" value="도살·마취"><span class="box"></span>도살·마취</label>
+          <label class="ck"><input type="checkbox" name="use" value="시험·연구"><span class="box"></span>시험·연구</label>
+          <label class="ck"><input type="checkbox" name="use" value="예술소품용" id="useArt"><span class="box"></span>예술소품용</label>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- 입수경위 -->
+  <table class="f">
+    <colgroup><col style="width:12.57%"><col style="width:12.48%"><col style="width:37.44%"><col style="width:37.51%"></colgroup>
+    <tr style="height:6mm">
+      <td class="lab" rowspan="8">입수경위</td>
+      <td class="lab" rowspan="5">양 도 인</td>
+      <td><div class="fl"><span class="lb">성명</span><input type="text" name="t_name"></div></td>
+      <td><div class="fl"><span class="lb">주민등록번호</span><input type="text" name="t_rrn" data-fmt="rrn" data-nosave inputmode="numeric"></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td><div class="fl"><span class="lb">직업 또는 직위</span><input type="text" name="t_job"></div></td>
+      <td><div class="fl"><span class="lb">주소</span><input type="text" name="t_addr"></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td><div class="fl"><span class="lb">허가청</span><input type="text" name="t_office"></div></td>
+      <td><div class="fl"><span class="lb">업소명</span><input type="text" name="t_shop"></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td><div class="fl"><span class="lb">허가번호</span><span class="u" style="margin-left:auto">제</span><input type="text" class="r" name="t_permit_no" style="max-width:32mm"><span class="u">호</span></div></td>
+      <td><div class="fl"><span class="lb">허가연월일</span><span class="ymd" style="margin-left:auto"><input type="text" class="y" name="t_permit_y" inputmode="numeric" maxlength="4">년<input type="text" class="md" name="t_permit_m" inputmode="numeric" maxlength="2">월<input type="text" class="md" name="t_permit_d" inputmode="numeric" maxlength="2">일</span></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td colspan="2"><div class="fl"><span class="lb">양도양수연월일</span><span class="ymd" style="margin-left:auto"><input type="text" class="y" name="t_trans_y" inputmode="numeric" maxlength="4">년<input type="text" class="md" name="t_trans_m" inputmode="numeric" maxlength="2">월<input type="text" class="md" name="t_trans_d" inputmode="numeric" maxlength="2">일</span></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td class="lab" rowspan="2">수입내용</td>
+      <td><div class="fl"><span class="lb">수입면장번호</span><span class="u" style="margin-left:auto">제</span><input type="text" class="r" name="i_no" style="max-width:28mm"><span class="u">호</span></div></td>
+      <td><div class="fl"><span class="lb">수입연월일</span><span class="ymd" style="margin-left:auto"><input type="text" class="y" name="i_y" inputmode="numeric" maxlength="4">년<input type="text" class="md" name="i_m" inputmode="numeric" maxlength="2">월<input type="text" class="md" name="i_d" inputmode="numeric" maxlength="2">일</span></div></td>
+    </tr>
+    <tr style="height:6mm">
+      <td><div class="fl"><span class="lb">수입국명</span><input type="text" name="i_country"></div></td>
+      <td><div class="fl"><span class="lb">수입지</span><input type="text" name="i_port"></div></td>
+    </tr>
+    <tr style="height:6.4mm">
+      <td class="lab">임 대</td>
+      <td><div class="fl"><span class="lb">임대업소명</span><input type="text" name="r_shop"></div></td>
+      <td><div class="fl"><span class="lb">임대업소 주소</span><input type="text" name="r_addr"></div></td>
+    </tr>
+  </table>
+
+  <!-- 보관 -->
+  <table class="f">
+    <colgroup><col style="width:12.56%"><col style="width:49.92%"><col style="width:37.52%"></colgroup>
+    <tr style="height:6.6mm">
+      <td class="lab" rowspan="2">보 관</td>
+      <td>총포 소지 허가증이 발급될 때까지 보관합니다.</td>
+      <td><div class="fl"><span class="lb">보관연월일</span><span class="ymd" style="margin-left:auto"><input type="text" class="y" name="k_y" inputmode="numeric" maxlength="4">년<input type="text" class="md" name="k_m" inputmode="numeric" maxlength="2">월<input type="text" class="md" name="k_d" inputmode="numeric" maxlength="2">일</span></div></td>
+    </tr>
+    <tr style="height:6.6mm">
+      <td><div class="fl"><span class="lb">보관처</span><input type="text" name="k_place"></div></td>
+      <td><div class="fl"><span class="lb">보관책임자</span><span class="u small" style="margin-left:auto">(서명 또는 인)</span></div></td>
+    </tr>
+  </table>
+
+  <!-- 경찰서 기재란 -->
+  <table class="f">
+    <colgroup><col style="width:12.5%"><col style="width:12.5%"><col style="width:9.55%"><col style="width:15.45%"><col style="width:12.5%"><col style="width:37.5%"></colgroup>
+    <tr style="height:7.6mm">
+      <td class="lab off">허가증 발급</td><td class="off"></td>
+      <td class="lab off">조사복명</td><td class="off"></td>
+      <td class="lab off small">신원·전과<br>조회</td><td class="off"></td>
+    </tr>
+  </table>
+
+  <!-- 신청 -->
+  <div class="gap" style="border-top:0.5mm solid var(--line)"></div>
+  <div class="declare">「총포ㆍ도검ㆍ화약류 등의 안전관리에 관한 법률」 제12조제1항 및 같은 법 시행규칙 제21조제1항에 따라 위와 같이 신청합니다.</div>
+  <div class="signline">
+    <span class="ymd"><input type="text" class="y" name="apply_y" inputmode="numeric" maxlength="4">년 <input type="text" class="md" name="apply_m" inputmode="numeric" maxlength="2">월 <input type="text" class="md" name="apply_d" inputmode="numeric" maxlength="2">일</span>
+    <span class="who">신청인 : <span class="name" id="sigName"></span><span class="small">(서명 또는 인)</span></span>
+  </div>
+  <div class="to">시·도경찰청장·경찰서장 귀하</div>
+  <div class="paper">210㎜×297㎜(백상지 80g/㎡)</div>
+</section>
+
+<!-- ======================= 뒤 쪽 ======================= -->
+<section class="page" aria-label="뒤쪽">
+  <div class="notice" style="justify-content:flex-end;padding-bottom:1.5mm"><span>(뒤 쪽)</span></div>
+
+  <table class="f">
+    <colgroup><col style="width:12.57%"><col style="width:74.6%"><col style="width:12.83%"></colgroup>
+    <tr style="height:12mm">
+      <td class="lab" rowspan="2">첨부서류</td>
+      <td rowspan="2" style="line-height:1.5;padding:1.5mm 2mm">
+        <ol class="list">
+          <li>1. 신체검사서(「건강검진기본법」 제14조에 따라 지정된 검진기관에서 허가신청일 기준 3개월 이내에 발급한 것으로 한정하며, 타정총ㆍ가스발사총 소지허가신청의 경우 운전면허가 있는 사람은 신체검사서를 첨부하지 않습니다)</li>
+          <li>2. 총포의 출처를 증명할 수 있는 서류</li>
+          <li>3. 총포의 용도를 소명할 수 있는 서류</li>
+          <li>4. 사진(가로 2.5㎝, 세로 3㎝)</li>
+          <li>5. 정신건강의학과 전문의 진단서 또는 소견서(허가신청일로부터 3개월 이내에 발급된 것으로서, 수렵용 또는 유해조수구제용 총포를 소지하려는 경우만 해당합니다)</li>
+          <li>6. 병력신고 및 개인정보 이용 동의서(수렵용 또는 유해조수구제용 총포를 제외한 총포를 소지하려는 경우에만 해당합니다)</li>
+        </ol>
+      </td>
+      <td class="lab">수수료</td>
+    </tr>
+    <tr><td class="lab">3,000 ~<br>5,000원</td></tr>
+  </table>
+
+  <div class="bar" style="margin-top:2mm">유의사항</div>
+  <div class="block">
+    <ol class="list">
+      <li>1. 총포 출처 증명서류는 입수경위에 따라 다음과 같습니다.</li>
+      <li class="sub">가. 기존 허가 총포의 경우는 총포 소지 허가증</li>
+      <li class="sub">나. 소지 허가 총포로서 상품화할 경우에는 총포 소지 허가증 반납증명 서류</li>
+      <li class="sub">다. 수입 또는 양도 총포의 경우에는 수입면장</li>
+      <li class="sub">라. 국내 제품인 경우에는 제조명세서</li>
+      <li>2. 총포의 용도를 소명할 수 있는 서류는 다음과 같습니다.</li>
+      <li class="sub">가. 사격경기용 총포: 사격선수확인증</li>
+      <li class="sub">나. 수렵용 총포: 제1종 수렵면허증 또는 수렵면허시험 합격증</li>
+      <li class="sub">다. 유해조수구제용 총포: 제1종 수렵면허증, 제1종 수렵면허시험 합격증 또는 유해야생동물 포획허가증</li>
+      <li class="sub">라. 그 밖의 용도에 필요한 총포: 총포의 해당 용도를 소명할 수 있는 서류</li>
+    </ol>
+  </div>
+
+  <div class="bar" style="margin-top:2mm">처리절차</div>
+  <div class="flow">
+    <table>
+      <colgroup><col style="width:29.6%"><col style="width:36.3%"><col style="width:34.1%"></colgroup>
+      <tr><th rowspan="2">신청인</th><th>경유기관 또는 처리기관</th><th>처리기관</th></tr>
+      <tr><th>경찰서<br>(총포·화약담당부서)</th><th>시·도경찰청<br>(총포·화약담당부서)</th></tr>
+    </table>
+    <svg viewBox="0 0 460 260" role="img" aria-label="처리절차 흐름도" font-family="Malgun Gothic, sans-serif" font-size="9.5">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+        </marker>
+      </defs>
+      <g stroke="#000" stroke-width="0.8" fill="none">
+        <!-- 열 구분선 -->
+        <line x1="136" y1="0" x2="136" y2="260" stroke="#777" stroke-width="0.5"/>
+        <line x1="303" y1="0" x2="303" y2="260" stroke="#777" stroke-width="0.5"/>
+        <!-- 상자 -->
+        <rect x="33" y="14" width="70" height="22"/>
+        <rect x="166" y="14" width="64" height="22"/>
+        <rect x="166" y="64" width="64" height="22"/>
+        <rect x="166" y="114" width="64" height="26"/>
+        <rect x="166" y="168" width="64" height="22"/>
+        <rect x="161" y="214" width="74" height="20" stroke-dasharray="3 2"/>
+        <rect x="333" y="14" width="64" height="22"/>
+        <rect x="333" y="64" width="64" height="22"/>
+        <rect x="333" y="114" width="64" height="22"/>
+        <!-- 화살표 -->
+        <path d="M103,25 H164" marker-end="url(#ah)"/>
+        <path d="M198,36 V62" marker-end="url(#ah)"/>
+        <path d="M198,86 V112" marker-end="url(#ah)"/>
+        <path d="M198,140 V166" marker-end="url(#ah)"/>
+        <path d="M198,190 V212" marker-end="url(#ah)"/>
+        <path d="M235,224 H318 V25 H331" marker-end="url(#ah)"/>
+        <path d="M365,36 V62" marker-end="url(#ah)"/>
+        <path d="M365,86 V112" marker-end="url(#ah)"/>
+        <path d="M166,179 H86 V38" marker-end="url(#ah)"/>
+        <path d="M397,125 H432 V248 H50 V38" marker-end="url(#ah)"/>
+      </g>
+      <g fill="#000" text-anchor="middle">
+        <text x="68" y="29">신청인</text>
+        <text x="198" y="29">접수</text>
+        <text x="198" y="79">확인검토</text>
+        <text x="198" y="125">신원전과</text>
+        <text x="198" y="136">조회</text>
+        <text x="198" y="183">결재</text>
+        <text x="198" y="228" font-size="8.5">권총·엽총에 한함</text>
+        <text x="365" y="29">접수</text>
+        <text x="365" y="79">검토확인</text>
+        <text x="365" y="129">결재</text>
+      </g>
+      <g fill="#000" font-size="8">
+        <text x="236" y="29">(담당자)</text>
+        <text x="236" y="79">(담당자)</text>
+        <text x="236" y="131">(담당자)</text>
+        <text x="236" y="183">(서장)</text>
+        <text x="402" y="29">(담당자)</text>
+        <text x="402" y="79">(담당자)</text>
+        <text x="365" y="150" text-anchor="middle">(시·도경찰청장)</text>
+      </g>
+    </svg>
+  </div>
+</section>
+
+</div>
+</form>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="card">
+    <h2 id="mTitle"></h2>
+    <div id="mBody"></div>
+    <div class="acts" id="mActs"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('form');
+  const KEY = 'gunPermitDraft.v1';
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+  /* ---------- 화면 폭에 맞춰 용지 축소 ---------- */
+  function fit() {
+    const pagePx = 210 * 96 / 25.4;
+    const avail = document.documentElement.clientWidth - 16;
+    document.documentElement.style.setProperty('--fit', Math.min(1, avail / pagePx).toFixed(4));
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* ---------- 자동 하이픈 ---------- */
+  const fmt = {
+    rrn(v) {
+      const d = v.replace(/\D/g, '').slice(0, 13);
+      return d.length > 6 ? d.slice(0, 6) + '-' + d.slice(6) : d;
+    },
+    tel(v) {
+      const d = v.replace(/\D/g, '').slice(0, 11);
+      if (d.startsWith('02')) {
+        if (d.length <= 2) return d;
+        if (d.length <= 5) return d.slice(0, 2) + '-' + d.slice(2);
+        if (d.length <= 9) return d.slice(0, 2) + '-' + d.slice(2, 5) + '-' + d.slice(5);
+        return d.slice(0, 2) + '-' + d.slice(2, 6) + '-' + d.slice(6, 10);
+      }
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return d.slice(0, 3) + '-' + d.slice(3);
+      if (d.length <= 10) return d.slice(0, 3) + '-' + d.slice(3, 6) + '-' + d.slice(6);
+      return d.slice(0, 3) + '-' + d.slice(3, 7) + '-' + d.slice(7);
+    }
+  };
+
+  /* ---------- 임시저장 (주민등록번호 제외) ---------- */
+  const status = document.getElementById('status');
+  function collect() {
+    const data = {};
+    $$('input[name]', form).forEach(el => {
+      if (el.hasAttribute('data-nosave')) return;
+      if (el.type === 'checkbox') { if (el.checked) (data[el.name] = data[el.name] || []).push(el.value); }
+      else if (el.value) data[el.name] = el.value;
+    });
+    return data;
+  }
+  function apply(data) {
+    $$('input[name]', form).forEach(el => {
+      if (el.hasAttribute('data-nosave')) return;
+      const v = data[el.name];
+      if (el.type === 'checkbox') el.checked = Array.isArray(v) && v.includes(el.value);
+      else if (typeof v === 'string') el.value = v;
+    });
+  }
+  let saveTimer;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(collect()));
+        status.textContent = '임시저장됨 (주민등록번호 제외)';
+      } catch (e) { status.textContent = ''; }
+    }, 400);
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return false;
+      apply(JSON.parse(raw));
+      status.textContent = '임시저장한 내용을 불러왔습니다 (주민등록번호는 다시 입력)';
+      return true;
+    } catch (e) { return false; }
+  }
+  function setToday() {
+    const t = new Date();
+    form.apply_y.value = t.getFullYear();
+    form.apply_m.value = t.getMonth() + 1;
+    form.apply_d.value = t.getDate();
+  }
+
+  /* ---------- 서명란 이름 ---------- */
+  const sig = document.getElementById('sigName');
+  function syncName() { sig.textContent = form.name.value.trim(); }
+
+  form.addEventListener('input', e => {
+    const el = e.target;
+    const f = el.dataset && el.dataset.fmt;
+    if (f && fmt[f]) el.value = fmt[f](el.value);
+    if (el.classList.contains('miss') && el.value.trim()) el.classList.remove('miss');
+    if (el.type === 'checkbox') { const g = el.closest('.ckgroup'); if (g) g.classList.remove('miss'); }
+    if (el === form.name) syncName();
+    save();
+  });
+  form.addEventListener('change', save);
+
+  /* ---------- 확인 창 ---------- */
+  const modal = document.getElementById('modal');
+  function openModal(title, html, actions) {
+    document.getElementById('mTitle').textContent = title;
+    document.getElementById('mBody').innerHTML = html;
+    const box = document.getElementById('mActs');
+    box.innerHTML = '';
+    actions.forEach(a => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn' + (a.primary ? ' primary' : ''); b.textContent = a.label;
+      b.addEventListener('click', () => { closeModal(); if (a.run) a.run(); });
+      box.appendChild(b);
+    });
+    modal.classList.add('on');
+    const last = box.lastElementChild; if (last) last.focus();
+  }
+  function closeModal() { modal.classList.remove('on'); }
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ---------- 출력 전 확인 ---------- */
+  function validate() {
+    const miss = [];
+    $$('.miss').forEach(el => el.classList.remove('miss'));
+    $$('input[data-req]', form).forEach(el => {
+      if (!el.value.trim()) { miss.push(el.dataset.req); el.classList.add('miss'); }
+    });
+    const rrn = form.rrn.value.replace(/\D/g, '');
+    if (rrn && rrn.length !== 13) { miss.push('주민등록번호 13자리 확인'); form.rrn.classList.add('miss'); }
+    $$('.ckgroup[data-req]').forEach(g => {
+      if (!g.querySelector('input:checked')) { miss.push(g.dataset.req + ' (하나 이상 √)'); g.classList.add('miss'); }
+    });
+    if (document.getElementById('useArt').checked && !form.m1_name.value.trim() && !form.m2_name.value.trim()) {
+      miss.push('관리책임자 (예술소품용 신청 시)'); form.m1_name.classList.add('miss');
+    }
+    return miss;
+  }
+  document.getElementById('btnPrint').addEventListener('click', () => {
+    const miss = validate();
+    if (!miss.length) { window.print(); return; }
+    openModal('입력하지 않은 항목이 있습니다',
+      '<ul>' + miss.map(m => '<li>' + m + '</li>').join('') + '</ul>빨간 테두리로 표시했습니다.',
+      [
+        { label: '그대로 출력', run: () => window.print() },
+        { label: '돌아가서 입력', primary: true, run: () => { const f = document.querySelector('input.miss, .ckgroup.miss'); if (f) { f.scrollIntoView({ block: 'center' }); if (f.focus) f.focus(); } } }
+      ]);
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    openModal('모든 입력 내용을 지울까요?', '<p style="margin:0 0 14px">임시저장된 내용도 함께 삭제됩니다.</p>', [
+      { label: '취소' },
+      { label: '초기화', primary: true, run: () => {
+        form.reset();
+        $$('.miss').forEach(el => el.classList.remove('miss'));
+        try { localStorage.removeItem(KEY); } catch (e) {}
+        setToday(); syncName();
+        status.textContent = '초기화했습니다';
+      } }
+    ]);
+  });
+
+  if (!load()) setToday();
+  syncName();
+})();
+</script>
+</body>
+</html>
